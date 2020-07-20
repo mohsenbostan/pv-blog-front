@@ -19,48 +19,54 @@ function App() {
         return JSON.parse(localStorage.getItem('auth'));
     };
     let logOut = () => {
-      Axios.post('auth/logout').then( res => {
-          localStorage.removeItem('auth');
-          localStorage.removeItem('user');
-      });
+        Axios.post('auth/logout').then(res => {
+            localStorage.removeItem('auth');
+            localStorage.removeItem('user');
+        });
     };
     return (
         <Router>
             <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/register">Register</Link>
-                        </li>
-                        {
-                            !checkAuth()
-                                ? (
-                                    <li>
-                                        <Link to="/login">Login</Link>
-                                    </li>
-                                )
-                                :
-                                null
-                        }
-                        <li>
-                            <Link to="/dashboard">Dashboard</Link>
-                        </li>
+                <nav className="navbar navbar-expand-lg navbar-dark bg-dark container">
+                    <a className="navbar-brand" href="#">React API</a>
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav">
+                            <li className="nav-item active">
+                                <Link className="nav-link" to="/">Home</Link>
+                            </li>
 
-                        {
-                            checkAuth()
-                                ? (
-                                    <li>
-                                        <button className="btn btn-danger" onClick={logOut}>Logout</button>
-                                    </li>
-                                )
-                                :
-                                null
-                        }
-
-                    </ul>
+                            {
+                                !checkAuth()
+                                    ? (
+                                        <>
+                                            <li className="nav-item">
+                                                <Link className="nav-link" to="/login">Login</Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <Link className="nav-link" to="/register">Register</Link>
+                                            </li>
+                                        </>
+                                    )
+                                    :
+                                    null
+                            }
+                            {
+                                checkAuth()
+                                    ? (
+                                        <>
+                                            <li className="nav-item">
+                                                <Link className="nav-link" to="/dashboard">Dashboard</Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <button className="btn btn-danger" onClick={logOut}>Logout</button>
+                                            </li>
+                                        </>
+                                    )
+                                    :
+                                    null
+                            }
+                        </ul>
+                    </div>
                 </nav>
                 <Switch>
                     <Route path="/register">
@@ -86,7 +92,7 @@ function App() {
                                 <Dashboard/>
                         }
                     </Route>
-                    <Route path="/articles/:slug" component={Article} />
+                    <Route path="/articles/:slug" component={Article}/>
 
                     <Route path="/">
                         <HomePage/>

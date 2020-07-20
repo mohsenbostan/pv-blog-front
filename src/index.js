@@ -3,14 +3,25 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import 'bootstrap/dist/css/bootstrap.css';
+import Axios from "./axios.config";
 
-
+Axios.get('auth/user').then(res => {
+    if (res.status === 200) {
+        localStorage.setItem('auth', 'true');
+        localStorage.setItem('user', JSON.stringify(res.data));
+    }
+}).catch(error => {
+    if (error.response.status === 401) {
+        localStorage.removeItem('auth');
+        localStorage.removeItem('user');
+    }
+});
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <App/>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change

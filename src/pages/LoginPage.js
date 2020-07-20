@@ -7,6 +7,8 @@ class LoginPage extends Component {
     state = {
         email: '',
         password: '',
+        errorMessage: null,
+        errors: []
     };
 
     formHandler(e) {
@@ -34,27 +36,61 @@ class LoginPage extends Component {
                     )
                 }
             }).catch(error => {
-                console.log(error)
+                if (error.response.status === 422) {
+                    this.setState({
+                        errorMessage: error.response.data.message,
+                        errors: error.response.data.errors
+                    });
+                }
             })
         })
     }
 
     render() {
+        let {errorMessage, errors} = this.state;
+
         return (
             <>
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-md-6">
+                            {
+                                errorMessage !== null
+                                    ? (
+                                        <div className="alert alert-danger text-danger">
+                                            <span>{errorMessage}</span>
+                                        </div>
+                                    )
+                                    : null
+                            }
                             <form onSubmit={this.doLogin.bind(this)}>
                                 <div className="my-3">
                                     <label>Email</label>
                                     <input type="text" onChange={this.formHandler.bind(this)} name="email"
                                            className="form-control"/>
+                                    {
+                                        errors.email !== null
+                                            ? (
+                                                <div className="text-danger">
+                                                    <span>{errors.email}</span>
+                                                </div>
+                                            )
+                                            : null
+                                    }
                                 </div>
                                 <div className="my-3">
                                     <label>Password</label>
                                     <input type="password" onChange={this.formHandler.bind(this)} name="password"
                                            className="form-control"/>
+                                    {
+                                        errors.password !== null
+                                            ? (
+                                                <div className="text-danger">
+                                                    <span>{errors.password}</span>
+                                                </div>
+                                            )
+                                            : null
+                                    }
                                 </div>
                                 <button type="submit" className="btn btn-primary">Login</button>
                             </form>
