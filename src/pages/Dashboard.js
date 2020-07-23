@@ -23,6 +23,10 @@ class Dashboard extends Component {
     };
 
     componentDidMount() {
+        this.fetchCategories();
+    }
+
+    fetchCategories() {
         Axios.get('/categories').then(res => {
             this.setState(prevState => {
                 return {
@@ -69,6 +73,7 @@ class Dashboard extends Component {
         let form = document.getElementById("categoryForm");
         Axios.post('categories', {name: this.state.category.name}).then(res => {
             if (res.status === 201) {
+                this.fetchCategories();
                 Swal.fire(
                     'Well Done!',
                     `Category Created Successfully.`,

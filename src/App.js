@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
+import history from './history';
 import './App.css';
 import {
     BrowserRouter as Router,
@@ -25,7 +25,7 @@ function App() {
         });
     };
     return (
-        <Router>
+        <Router history={history}>
             <div>
                 <nav className="navbar navbar-expand-lg navbar-dark bg-dark container">
                     <a className="navbar-brand" href="#">React API</a>

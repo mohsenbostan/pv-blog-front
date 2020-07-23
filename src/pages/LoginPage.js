@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Axios from "../axios.config";
 import Swal from "sweetalert2";
+import history from "../history";
 
 class LoginPage extends Component {
 
@@ -29,6 +30,7 @@ class LoginPage extends Component {
                 if (res.status === 200) {
                     localStorage.setItem('auth', 'true');
                     localStorage.setItem('user', JSON.stringify(res.data.user));
+                    history.push('/dashboard');
                     Swal.fire(
                         'Logged In!',
                         `Hello ${res.data.user.name}`,

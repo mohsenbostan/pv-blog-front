@@ -15,6 +15,9 @@ class HomePage extends Component {
             description: null,
             content: null,
             category_id: null,
+        },
+        comment: {
+            content: null,
         }
     };
 
@@ -156,9 +159,69 @@ class HomePage extends Component {
         })
     }
 
+    commentFormHandler(e) {
+        let target = e.target;
+        let value = target.value;
+
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                comment: {
+                    ...prevState.editItem,
+                    content: value
+                }
+            }
+        })
+    }
+
+    createComment(e, article_id) {
+        e.preventDefault();
+
+        let formData = {
+            content: this.state.comment.content,
+        };
+
+        Axios.post(`articles/${article_id}/saveComment`, formData).then(res => {
+            if (res.status === 201) {
+                this.fetchData(1);
+                Swal.fire(
+                    'Well Done!',
+                    'Comment Added Successfully!',
+                    'success'
+                );
+            }
+        }).catch(error => {
+            Swal.fire(
+                'Oops!',
+                'Request failed.',
+                'error'
+            );
+        })
+    }
+
+    deleteComment(comment_id) {
+        Axios.delete(`articles/${comment_id}/deleteComment`).then(res => {
+            if (res.status === 200) {
+                this.fetchData(1);
+                Swal.fire(
+                    'Well Done!',
+                    'Comment Deleted Successfully!',
+                    'success'
+                );
+            }
+        }).catch(error => {
+            Swal.fire(
+                'Oops!',
+                'Request failed.',
+                'error'
+            );
+        })
+    }
+
     render() {
         let {articles, current_page, last_page, editIndex, editItem} = this.state;
 
+        let authUser = JSON.parse(localStorage.getItem('user'));
         return (
             <>
                 <div className="container">
@@ -230,14 +293,60 @@ class HomePage extends Component {
                                             </div>
                                             {
                                                 this.authCheck()
-                                                    ? (<div className="card-footer p-4">
-                                                        <button className="btn btn-danger"
-                                                                onClick={this.deleteArticle.bind(this, article.id)}>Delete
-                                                        </button>
-                                                        <button className="btn btn-success mx-3"
-                                                                onClick={this.editArticle.bind(this, article.id)}>Edit
-                                                        </button>
-                                                    </div>)
+                                                    ? (
+                                                        <div>
+                                                            <div className="card-footer p-4">
+                                                                <button className="btn btn-danger"
+                                                                        onClick={this.deleteArticle.bind(this, article.id)}>Delete
+                                                                </button>
+                                                                <button className="btn btn-success mx-3"
+                                                                        onClick={this.editArticle.bind(this, article.id)}>Edit
+                                                                </button>
+                                                            </div>
+                                                            <div className="row">
+                                                                {
+                                                                    article.comments.length <= 0 && article.length <= 0
+                                                                        ? (<div>No Comments Found!</div>)
+                                                                        : article.comments.map(comment => {
+                                                                            return (
+                                                                                <div className="col-md-12 my-3" key={comment.id}>
+                                                                                    <div className="card">
+                                                                                        <div className="card-body">
+                                                                                            <p>{comment.content}</p>
+                                                                                            <hr/>
+                                                                                            {
+                                                                                                comment.user_id === authUser.id
+                                                                                                    ? (<button
+                                                                                                        className="btn btn-danger"
+                                                                                                        onClick={() => this.deleteComment(comment.id)}>Delete</button>)
+                                                                                                    : null
+                                                                                            }
+
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                }
+
+                                                                <div className="col-md-12 my-3 p-3">
+                                                                    <form onSubmit={(e) => this.createComment(e, article.id)}>
+                                                                        <div className="my-3">
+                                                                            <label htmlFor="content">Content</label>
+                                                                            <textarea name="content"
+                                                                                      onChange={this.commentFormHandler.bind(this)}
+                                                                                      className="form-control" id="content"
+                                                                                      cols="30"
+                                                                                      rows="10"/>
+                                                                        </div>
+                                                                        <button type="submit"
+                                                                                className="btn btn-primary">Submit
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )
                                                     : null
                                             }
                                         </div>
