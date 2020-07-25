@@ -15,6 +15,7 @@ class Dashboard extends Component {
         article: {
             title: null,
             description: null,
+            thumbnail: null,
             content: null,
             category: null,
             errorMessage: null,

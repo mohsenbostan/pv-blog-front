@@ -18,7 +18,12 @@ class HomePage extends Component {
         },
         comment: {
             content: null,
-        }
+        },
+
+        editCommentIndex: 0,
+        editCommentItem: {
+            content: null,
+        },
     };
 
     componentDidMount() {
@@ -174,6 +179,20 @@ class HomePage extends Component {
         })
     }
 
+    editCommentFormHandler(e) {
+        let target = e.target;
+        let value = target.value;
+
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                editCommentItem: {
+                    content: value
+                }
+            }
+        })
+    }
+
     createComment(e, article_id) {
         e.preventDefault();
 
@@ -218,8 +237,48 @@ class HomePage extends Component {
         })
     }
 
+    editComment(id, article_id) {
+        let article = this.state.articles.filter(item => item.id === article_id);
+        let comment = article[0].comments.filter(item => item.id === id);
+        console.log(comment);
+
+        this.setState({
+            editCommentIndex: id,
+            editCommentItem: comment[0]
+        })
+
+    }
+
+    doEditComment(e) {
+        e.preventDefault();
+
+        if (this.authCheck()) {
+            let formData = {
+                content: this.state.editCommentItem.content,
+            };
+            Axios.put(`articles/${this.state.editCommentIndex}/editComment`,
+                formData
+            ).then(res => {
+                if (res.status === 200) {
+                    this.setState({
+                        editCommentIndex: 0,
+                        editCommentItem: {
+                            content: null,
+                        }
+                    });
+                    this.fetchData(1);
+                    Swal.fire(
+                        'Well Done!',
+                        'Comment Updated Successfully.',
+                        'success'
+                    )
+                }
+            })
+        }
+    }
+
     render() {
-        let {articles, current_page, last_page, editIndex, editItem} = this.state;
+        let {articles, current_page, last_page, editIndex, editItem, editCommentIndex, editCommentItem} = this.state;
 
         let authUser = JSON.parse(localStorage.getItem('user'));
         return (
@@ -258,6 +317,28 @@ class HomePage extends Component {
                                     </div>
                                 )
                         }
+
+                        {
+                            editCommentIndex === 0
+                                ? null
+                                : (
+                                    <div className="col-md-12 p-5">
+                                        <form onSubmit={this.doEditComment.bind(this)}>
+                                            <div className="from-input">
+                                                <label htmlFor="content">Content</label>
+                                                <textarea className="form-control"
+                                                          onChange={this.editCommentFormHandler.bind(this)}
+                                                          value={editCommentItem.content}
+                                                          name="content"
+                                                          id="content"/>
+                                            </div>
+                                            <button className="btn btn-primary my-3" type="submit">Save
+                                            </button>
+                                        </form>
+                                    </div>
+                                )
+                        }
+
                         <h5>{
                             current_page
                         }</h5>
@@ -316,9 +397,18 @@ class HomePage extends Component {
                                                                                             <hr/>
                                                                                             {
                                                                                                 comment.user_id === authUser.id
-                                                                                                    ? (<button
-                                                                                                        className="btn btn-danger"
-                                                                                                        onClick={() => this.deleteComment(comment.id)}>Delete</button>)
+                                                                                                    ? (
+                                                                                                        <div>
+                                                                                                            <button
+                                                                                                                className="btn btn-danger"
+                                                                                                                onClick={() => this.deleteComment(comment.id)}>Delete
+                                                                                                            </button>
+                                                                                                            <button
+                                                                                                                className="btn btn-primary"
+                                                                                                                onClick={() => this.editComment(comment.id, article.id)}>Edit
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                    )
                                                                                                     : null
                                                                                             }
 
